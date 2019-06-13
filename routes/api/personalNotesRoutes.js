@@ -1,20 +1,4 @@
 'use strict';
-module.exports = function(app) {
-    const personalNotesList = require('../../controllers/personalNotesController');
-
-    // personal notes Routes
-    app.route('/api/notes')
-        .get(personalNotesList.list_all_notes)
-        .post(personalNotesList.create_a_note);
-
-
-    app.route('/api/notes/:noteId')
-        .get(personalNotesList.read_a_note)
-        .put(personalNotesList.update_a_note)
-        .delete(personalNotesList.delete_a_note);
-};
-
-'use strict';
 
 const mongoose = require('mongoose'),
     Note = mongoose.model('Note');
