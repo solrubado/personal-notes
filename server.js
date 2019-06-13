@@ -10,7 +10,7 @@ require('./config/passport');
 
 // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/PersonalNoteDb', {useNewUrlParser: true})
+mongoose.connect(process.env.MONGODB_URI ||'mongodb://localhost/PersonalNoteDb', {useNewUrlParser: true})
     .then(res => console.log("Connected to DB"))
     .catch(err => console.log(err));
 

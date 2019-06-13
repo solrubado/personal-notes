@@ -5,6 +5,7 @@ const mongoose = require('mongoose'),
 const auth = require('../../routes/auth');
 const router = require('express').Router();
 
+//ge
 router.get('/', auth.required,  (req, res) => {
     const {status} = req.query
     //check if there is a status to filter in the query and find the notes with that status
@@ -54,7 +55,7 @@ router.post('/', auth.required, (req, res) => {
 });
 
 
-router.post('/:id', auth.required,  (req, res) => {
+router.put('/:id', auth.required,  (req, res) => {
     const {noteId} = req.params;
 
     //find the note with that id and update the values sent in body
