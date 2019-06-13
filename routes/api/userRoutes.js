@@ -6,11 +6,11 @@ const router = require('express').Router();
 const auth = require('../../routes/auth');
 const Users = mongoose.model('Users');
 
-//POST new user route (optional, everyone has access)
+//POST new user (optional, everyone has access)
 router.post('/users', auth.optional, (req, res, next) => {
-    const { username, email, password }  = req.body;
-    console.log(req.body)
+    const { email, password }  = req.body;
 
+    //check if the user sent email and password
     if(!email) {
         return res.status(422).json({
             errors: {
@@ -27,6 +27,7 @@ router.post('/users', auth.optional, (req, res, next) => {
         });
     }
 
+    //save new user
     const finalUser = new Users(req.body);
 
     finalUser.setPassword(password);
@@ -36,11 +37,11 @@ router.post('/users', auth.optional, (req, res, next) => {
         .catch(()=> res.send("Error while creating user"));
 });
 
-//POST login route (optional, everyone has access)
+//POST login (optional, everyone has access)
 router.post('/login', auth.optional, (req, res, next) => {
     const { email, password }  = req.body;
-    console.log(email, password)
 
+    //check if the user sent email and password
     if(!email) {
         return res.status(422).json({
             errors: {
@@ -57,6 +58,7 @@ router.post('/login', auth.optional, (req, res, next) => {
         });
     }
 
+    //authenticate user
     return passport.authenticate('local', { session: false }, (err, passportUser, info) => {
         if(err) {
             return next(err);
@@ -73,9 +75,11 @@ router.post('/login', auth.optional, (req, res, next) => {
     })(req, res, next);
 });
 
-//GET current route (required, only authenticated users have access)
+//GET current user (required, only authenticated users have access)
 router.get('/me', auth.required, (req, res, next) => {
     const { payload: { id } } = req;
+
+    //check if there is an user with that id and return it as a json
     return Users.findById(id)
         .then((user) => {
             if(!user) {
