@@ -311,7 +311,6 @@ describe('Notes', () => {
                     .set('Authorization', 'Token ' + token)
                     .send(note)
                     .end((err, res) => {
-                        console.log("body",res.body)
                         noteId= res.body._id
                         done();
                     });
