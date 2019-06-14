@@ -9,7 +9,7 @@ const NoteSchema = new Schema({
     },
     text: {
         type: String,
-        required: 'Please enter the name of the note'
+        required: true
     },
     created_at: {
         type: Date,

@@ -21,7 +21,7 @@ router.post('/users', auth.optional, async (req, res, next) => {
         })
     }
     catch (e) {
-        return res.status(404).json(e)
+        return res.status(400).json(e)
     }
 });
 
@@ -31,7 +31,7 @@ router.post('/login', auth.optional, (req, res, next) => {
 
     //check if the user sent email and password
     if (!email) {
-        return res.status(404).json({
+        return res.status(400).json({
             errors: {
                 email: 'is required',
             },
@@ -39,7 +39,7 @@ router.post('/login', auth.optional, (req, res, next) => {
     }
 
     if (!password) {
-        return res.status(404).json({
+        return res.status(400).json({
             errors: {
                 password: 'is required',
             },
@@ -56,7 +56,7 @@ router.post('/login', auth.optional, (req, res, next) => {
             const user = passportUser;
             user.token = passportUser.generateJWT();
 
-            return res.json({user: user.toAuthJSON()});
+            return res.status(200).json({user: user.toAuthJSON()});
         }
 
         return res.status(400).send(info);

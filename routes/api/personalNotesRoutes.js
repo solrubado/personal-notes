@@ -14,14 +14,14 @@ router.get('/', auth.required,  (req, res) => {
     if (status) {
         Note.find({status, userId:id}, function (err, note) {
             if (err)
-                res.send(err);
+                res.status(400).send(err);
             res.json(note);
         });
     } else {
         //if there isn't a status show all the notes
         Note.find({userId:id}, function (err, note) {
             if (err)
-                res.send(err);
+                res.status(400).send(err);
             res.json(note);
         });
     }
@@ -37,8 +37,8 @@ router.post('/', auth.required, async (req, res) => {
     try {
         await new_note.save(function (err, note) {
             if (err)
-                res.send(err);
-            res.json(note);
+                res.status(400).send(err);
+            res.status(200).json(note);
         });
     }catch(error){
         res.send(error)
@@ -55,7 +55,7 @@ router.get('/:noteId', auth.required, (req, res) => {
         if (err)
             res.send(err);
         if(note.userId!==id)
-            res.send("This note doesn't belong to this user")
+            res.status(401).send("This note doesn't belong to this user")
         res.json(note);
     });
 });
@@ -71,7 +71,7 @@ router.put('/:noteId', auth.required,  (req, res) => {
         useFindAndModify: false
     }, function (err, note) {
         if (err)
-            res.send(err);
+            res.status(400).send(err);
         res.json(note);
     });
 });
@@ -87,7 +87,7 @@ router.delete('/:noteId', auth.required,  async (req, res) => {
             userId:id
         }, function (err) {
             if (err)
-                res.send(err);
+                res.status(400).send(err);
             res.json({message: 'Note successfully deleted'});
         });
     } catch (error) {

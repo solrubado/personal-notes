@@ -1,7 +1,7 @@
 let mongoose = require("mongoose");
 let User = require('../models/userModel');
 let PersonalNote = require('../models/personalNotesModel');
-
+let Note = mongoose.model('Note');
 
 //Require the dev-dependencies
 let chai = require('chai');
@@ -11,7 +11,15 @@ let should = chai.should();
 
 
 chai.use(chaiHttp);
-//Our parent block
+
+
+/*
+*
+* TEST THE USER ROUTES
+*
+* */
+
+
 describe('User', () => {
     beforeEach((done) => { //Before each test we empty the database
         User.remove({}, (err) => {
@@ -35,7 +43,7 @@ describe('User', () => {
                 .post('/api/users/')
                 .send(user)
                 .end((err, res) => {
-                    res.should.have.status(404);
+                    res.should.have.status(400);
                     res.body.should.be.a('object');
                     res.body.should.have.property('errors');
                     res.body.errors.should.have.property('password');
@@ -55,7 +63,7 @@ describe('User', () => {
                 .post('/api/users/')
                 .send(user)
                 .end((err, res) => {
-                    res.should.have.status(404);
+                    res.should.have.status(400);
                     res.body.should.be.a('object');
                     res.body.should.have.property('errors');
                     res.body.errors.should.have.property('email');
@@ -94,15 +102,32 @@ describe('User', () => {
   */
 
     describe('login a user', () => {
+
+        before(function (done) {
+            let user = {
+                username: "solrubado",
+                first_name: "Maria Sol",
+                last_name: "Rubado",
+                password: "test123",
+                email: "sol@gmail.com"
+            }
+            chai.request(server)
+                .post('/api/users/')
+                .send(user)
+                .end((err, res) => {
+                    done();
+                });
+        });
+
         it('it should not LOGIN a user without email field', (done) => {
             let user = {
-                password:"test123"
+                password: "test123"
             }
             chai.request(server)
                 .post('/api/login/')
                 .send(user)
                 .end((err, res) => {
-                    res.should.have.status(404);
+                    res.should.have.status(400);
                     res.body.should.be.a('object');
                     res.body.should.have.property('errors');
                     res.body.errors.should.have.property('email').eql('is required');
@@ -112,13 +137,13 @@ describe('User', () => {
 
         it('it should not LOGIN a user without password field', (done) => {
             let user = {
-                email:"sol@gmail.com"
+                email: "sol@gmail.com"
             }
             chai.request(server)
                 .post('/api/login/')
                 .send(user)
                 .end((err, res) => {
-                    res.should.have.status(404);
+                    res.should.have.status(400);
                     res.body.should.be.a('object');
                     res.body.should.have.property('errors');
                     res.body.errors.should.have.property('password').eql('is required');
@@ -126,22 +151,23 @@ describe('User', () => {
                 });
         });
 
-        // it('it should LOGIN an user ', (done) => {
-        //     let user = {
-        //         password: "test123",
-        //         email: "sol@gmail.com"
-        //     }
-        //     chai.request(server)
-        //         .post('/api/login/')
-        //         .send(user)
-        //         .end((err, res) => {
-        //             console.log(res.body)
-        //             res.should.have.status(200);
-        //             res.body.should.be.a('object');
-        //             res.body.user.should.have.property('token');
-        //             done();
-        //         });
-        // });
+
+        it('it should LOGIN an user ', (done) => {
+
+            let user = {
+                password: "test123",
+                email: "sol@gmail.com"
+            }
+            chai.request(server)
+                .post('/api/login/')
+                .send(user)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.user.should.have.property('token');
+                    done();
+                });
+        });
 
     });
 
@@ -150,25 +176,165 @@ describe('User', () => {
 */
 
     describe('get the current user', () => {
-        it('it should not get the current user without email field', (done) => {
+        let token = ''
+
+        before(function (done) {
             let user = {
-                password:"test123"
+                username: "solrubado",
+                first_name: "Maria Sol",
+                last_name: "Rubado",
+                password: "test123",
+                email: "sol@gmail.com"
             }
             chai.request(server)
-                .post('/api/login/')
+                .post('/api/users/')
                 .send(user)
                 .end((err, res) => {
-                    res.should.have.status(404);
-                    res.body.should.be.a('object');
-                    res.body.should.have.property('errors');
-                    res.body.errors.should.have.property('email').eql('is required');
+                    token = res.body.user.token;
                     done();
                 });
         });
 
+        it('it should not get the current user without authorization header', (done) => {
+            chai.request(server)
+                .post('/api/me/')
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    done()
+                });
+
+        });
+
+
     });
 
 
+});
+
+
+/*
+*
+* TEST THE NOTES ROUTES
+*
+* */
+
+describe('Notes', () => {
+    beforeEach((done) => { //Before each test we empty the database
+        PersonalNote.remove({}, (err) => {
+            done();
+        });
+    });
+
+
+    describe('notes routes', () => {
+        let token = ''
+
+        before(function (done) {
+            let user = {
+                username: "solrubado",
+                first_name: "Maria Sol",
+                last_name: "Rubado",
+                password: "test123",
+                email: "sol@gmail.com"
+            }
+            chai.request(server)
+                .post('/api/users/')
+                .send(user)
+                .end((err, res) => {
+                    token = res.body.user.token;
+                    done();
+                });
+        });
+
+        it('it should GET all the notes', (done) => {
+            chai.request(server)
+                .get('/api/notes/')
+                .set('Authorization', 'Token ' + token)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('array');
+                    res.body.length.should.be.eql(0);
+                    done();
+                });
+        });
+
+        it('it should not POST a note without text', (done) => {
+            let note = {
+                title: "Note"
+            }
+
+            chai.request(server)
+                .post('/api/notes/')
+                .set('Authorization', 'Token ' + token)
+                .send(note)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('errors');
+                    res.body.errors.should.have.property('text')
+                    done();
+                });
+        });
+
+        it('it should POST a note ', (done) => {
+            let note = {
+                title: "note title",
+                text: "note text",
+            }
+            chai.request(server)
+                .post('/api/notes/')
+                .set('Authorization', 'Token ' + token)
+                .send(note)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('title');
+                    res.body.should.have.property('text');
+                    res.body.should.have.property('status');
+                    done();
+                });
+        });
+
+        it('it should UPDATE a note ', async (done) => {
+            let note = new Note({title: "Note Title", text: "Text", status: 'ongoing'})
+            try {
+                await note.save((err, note) => {
+                    chai.request(server)
+                        .put('/api/notes/' + note._id)
+                        .send({title: "Note Title", text: "Text", status: 'archived'})
+                        .set('Authorization', 'Token ' + token)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            res.body.should.be.a('object');
+                            res.body.should.have.property('status').eql('archived');
+                            done();
+                        });
+                });
+            }
+            catch (e) {
+                console.log(e)
+            }
+        });
+
+        it('it should DELETE note', async (done) => {
+            let note = new Note({title: "Note Title", text: "Text", status: 'ongoing'})
+            try {
+                await note.save((err, note) => {
+                    chai.request(server)
+                        .delete('/api/notes/' + note._id)
+                        .set('Authorization', 'Token ' + token)
+                        .end((err, res) => {
+                            res.should.have.status(200);
+                            done();
+                        });
+                });
+            }
+            catch (e) {
+                console.log(e)
+            }
+        });
+
+    });
 });
 
 
