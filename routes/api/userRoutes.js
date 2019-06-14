@@ -69,10 +69,10 @@ router.get('/me', auth.required, async (req, res, next) => {
 
     //check if there is an user with that id and return it as a json
     try {
-        await Users.findById(id)
+        let user = await Users.findById(id)
         return res.json({user: user.toAuthJSON()});
     } catch (e) {
-        return res.status(400).send(e);
+        return res.status(400).send();
     }
 
 });
