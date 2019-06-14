@@ -3,7 +3,7 @@ const crypto = require('crypto');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 
-const { Schema } = mongoose;
+const {Schema} = mongoose;
 
 const UserSchema = new Schema({
     first_name: {
@@ -31,7 +31,7 @@ const UserSchema = new Schema({
     salt: String,
 });
 
-UserSchema.pre('save', function(next) {
+UserSchema.pre('save', function (next) {
     // get the current date
     const currentDate = new Date();
 
@@ -45,17 +45,20 @@ UserSchema.pre('save', function(next) {
     next();
 });
 
-UserSchema.methods.setPassword = function(password) {
+UserSchema.methods.setPassword = function (password) {
+    if (!password) return;
     this.salt = crypto.randomBytes(16).toString('hex');
     this.hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
+
 };
 
-UserSchema.methods.validatePassword = function(password) {
+UserSchema.methods.validatePassword = function (password) {
+    if (!password) return false;
     const hash = crypto.pbkdf2Sync(password, this.salt, 10000, 512, 'sha512').toString('hex');
     return this.hash === hash;
 };
 
-UserSchema.methods.generateJWT = function() {
+UserSchema.methods.generateJWT = function () {
     const today = new Date();
     const expirationDate = new Date(today);
     expirationDate.setDate(today.getDate() + 60);
@@ -68,10 +71,13 @@ UserSchema.methods.generateJWT = function() {
 }
 
 
-UserSchema.methods.toAuthJSON = function() {
+UserSchema.methods.toAuthJSON = function () {
     return {
         _id: this._id,
         email: this.email,
+        username: this.username,
+        first_name: this.first_name,
+        last_name: this.last_name,
         token: this.generateJWT(),
     };
 };

@@ -14,8 +14,10 @@ mongoose.connect(process.env.MONGODB_URI ||'mongodb://localhost/PersonalNoteDb',
     .then(res => console.log("Connected to DB"))
     .catch(err => console.log(err));
 
-app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.text());
+app.use(bodyParser.json({ type: 'application/json'}));
 
 const routesNotes = require('./routes/api/personalNotesRoutes');
 const routesUser = require('./routes/api/userRoutes');
@@ -27,3 +29,5 @@ app.use('/api/notes', routesNotes);
 app.listen(port);
 
 console.log('Personal Notes RESTful API server started on: ' + port);
+
+module.exports = app; // for testing

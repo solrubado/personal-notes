@@ -7,24 +7,7 @@ const Users = mongoose.model('Users');
 
 //POST new user (optional, everyone has access)
 router.post('/users', auth.optional, async (req, res, next) => {
-    const {email, password} = req.body;
-
-    //check if the user sent email and password
-    if (!email) {
-        return res.status(422).json({
-            errors: {
-                email: 'is required',
-            },
-        });
-    }
-
-    if (!password) {
-        return res.status(422).json({
-            errors: {
-                password: 'is required',
-            },
-        });
-    }
+    const {password} = req.body;
 
     //save new user
     const finalUser = new Users(req.body);
@@ -38,7 +21,7 @@ router.post('/users', auth.optional, async (req, res, next) => {
         })
     }
     catch (e) {
-        return res.send("Error while creating user")
+        return res.status(404).json(e)
     }
 });
 
@@ -48,7 +31,7 @@ router.post('/login', auth.optional, (req, res, next) => {
 
     //check if the user sent email and password
     if (!email) {
-        return res.status(422).json({
+        return res.status(404).json({
             errors: {
                 email: 'is required',
             },
@@ -56,7 +39,7 @@ router.post('/login', auth.optional, (req, res, next) => {
     }
 
     if (!password) {
-        return res.status(422).json({
+        return res.status(404).json({
             errors: {
                 password: 'is required',
             },
@@ -89,7 +72,7 @@ router.get('/me', auth.required, async (req, res, next) => {
         await Users.findById(id)
         return res.json({user: user.toAuthJSON()});
     } catch (e) {
-        return res.sendStatus(400);
+        return res.status(400).send(e);
     }
 
 });
