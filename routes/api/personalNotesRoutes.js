@@ -72,7 +72,9 @@ router.put('/:noteId', auth.required,  (req, res) => {
     }, function (err, note) {
         if (err)
             res.status(400).send(err);
-        res.json(note);
+        if(note){
+            res.json(note);
+        }
     });
 });
 

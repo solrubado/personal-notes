@@ -246,6 +246,7 @@ describe('Notes', () => {
                 });
         });
 
+
         it('it should GET all the notes', (done) => {
             chai.request(server)
                 .get('/api/notes/')
@@ -295,25 +296,38 @@ describe('Notes', () => {
                 });
         });
 
-        it('it should UPDATE a note ', async (done) => {
-            let note = new Note({title: "Note Title", text: "Text", status: 'ongoing'})
-            try {
-                await note.save((err, note) => {
-                    chai.request(server)
-                        .put('/api/notes/' + note._id)
-                        .send({title: "Note Title", text: "Text", status: 'archived'})
-                        .set('Authorization', 'Token ' + token)
-                        .end((err, res) => {
-                            res.should.have.status(200);
-                            res.body.should.be.a('object');
-                            res.body.should.have.property('status').eql('archived');
-                            done();
-                        });
+        it('it should UPDATE a note ', (done) => {
+
+            let noteId = ''
+
+            before(function (done) {
+                let note = {
+                    title: "note title",
+                    text: "note text",
+                    status:'ongoing'
+                }
+                chai.request(server)
+                    .post('/api/notes/')
+                    .set('Authorization', 'Token ' + token)
+                    .send(note)
+                    .end((err, res) => {
+                        console.log("body",res.body)
+                        noteId= res.body._id
+                        done();
+                    });
+            })
+
+            chai.request(server)
+                .put('/api/notes/' + noteId)
+                .set('Authorization', 'Token ' + token)
+                .send({title: "Note Title", text: "Text", status: 'archived'})
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.should.have.property('status').eql('archived');
+                    done();
                 });
-            }
-            catch (e) {
-                console.log(e)
-            }
+
         });
 
         it('it should DELETE note', async (done) => {
