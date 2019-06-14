@@ -1,7 +1,7 @@
 # Personal Notes
 REST API backend application that can be used to manage personal notes in a multi-user environment
 
-#How to run the API
+# How to run the API
 
 This API is deployed in Heroku 
 
@@ -35,7 +35,7 @@ Now the API will be running in
 `http://localhost:3000/`
 
 
-#How to use the API
+# How to use the API
 
 This API lets an user create a note, update and delete it. 
 
@@ -70,7 +70,7 @@ To use this collection you need to:
 
 Any doubts refer to: sol.rubado@gmail.com
 
-#Tech Stack
+# Tech Stack
 
 This API was made using Node.js, Express and MongoDB.
 
@@ -78,7 +78,7 @@ They were chosen because they can be written completely in javascript.
 MongoDB is a NoSQL database which makes it extremely flexible to use and 
 Node.js is fast and scalable, supporting thousands of concurrent connections.
 
-#Future Features
+# Future Features
 
     - Let the user share his notes with other users.
     - Let the user get an email with the note at certain time he chooses.
