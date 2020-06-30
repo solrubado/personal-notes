@@ -7,7 +7,7 @@
     "babel-cli": "^6.26.0",
     "bcryptjs": "^2.4.3",
     "express": "^4.17.1",
-    "express-jwt": "^5.3.1",
+    "express-jwt": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.5.14",
     "passport": "^0.4.0",
